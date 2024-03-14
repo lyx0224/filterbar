@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "FilterBar是一款OpenHarmony环境下可用的筛选组件，使用频次很高。",
   "main": "Index.ets",
-  "author": "",
+  "author": "liyixin",
   "license": "Apache-2.0",
   "dependencies": {}
 }

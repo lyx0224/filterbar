@@ -4,6 +4,13 @@
   "description": "FilterBar是一款OpenHarmony环境下可用的筛选组件，使用频次很高。",
   "main": "Index.ets",
   "author": "liyixin",
+  "keywords": [
+    'filterbar',
+    '筛选器',
+    '筛选组件'
+  ],
+  "repository": 'https://gitee.com/ethan-coder/filterbar',
+  "homepage": 'https://gitee.com/ethan-coder',
   "license": "Apache-2.0",
   "dependencies": {}
 }

@@ -1,8 +1,14 @@
-
-export { FilterBar,
-  TabItem,
+import {
+  AbsFilterData,
   CallBackData,
-  TabContentType,
-  FilterData,
+  FilterItemData,
   SingleFilterData,
-  TwoListFilterData } from './src/main/ets/components/FilterBar'
+  TwoListFilterData,
+  TwoListLeftData
+} from './src/main/ets/components/model/model'
+
+export { FilterBar, TabItem, } from './src/main/ets/components/FilterBar'
+
+export { SingleFilterData, TwoListFilterData, AbsFilterData, FilterItemData, TwoListLeftData, CallBackData }
+
+'./src/main/ets/components/model/model'

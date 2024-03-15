@@ -1,6 +1,6 @@
 {
   "name": "filterbarexample",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Please describe the basic information.",
   "main": "",
   "author": "",
@@ -9,6 +9,5 @@
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.13",
-//    "@liyixin/filterbar": "file:./filterbar"
   }
 }

@@ -15,6 +15,7 @@ export struct FilterBar {
   @State popStatus: boolean[] = []
   private _offset: Position[] = []
   @State tabTitleList: string[] = []
+  @State tabTitleColor: Resource[] = []
   private itemTabWidth = -1
 
   aboutToAppear(): void {
@@ -22,6 +23,7 @@ export struct FilterBar {
       this.popStatus[index] = false
       this._offset[index] = { x: 0, y: 0 }
       this.tabTitleList[index] = item.tabTitle
+      this.tabTitleColor[index] = $r('app.color.fb_normal_color')
       this.itemTabWidth = getScreenWidth() / this.filterDataList.length
     })
   }
@@ -33,14 +35,13 @@ export struct FilterBar {
           {
             title: this.tabTitleList[index],
             pop: this.popStatus[index],
+            color: this.tabTitleColor[index],
             tabClick: () => {
-              this.popStatus[index] = !this.popStatus[index]
-            },
-            touchCallback: () => {
               this._offset[index] = {
                 x: (1.5 - index) * this.itemTabWidth,
                 y: 0
               }
+              this.popStatus[index] = !this.popStatus[index]
             }
           }
         ).layoutWeight(1)
@@ -57,14 +58,14 @@ export struct FilterBar {
             item instanceof SingleFilterData ?
             this.singlePopupBuilder(item as SingleFilterData, (itemData: FilterItemData, itemIndex: number) => {
               this.popStatus[index] = false
-              this.updateTabTitle(index, itemData.title)
+              this.updateTabStatus(index, itemData.title)
               if (this.callback) {
                 this.callback(new CallBackData(index, -1, itemData))
               }
             }) :
             this.twoListPopupWindowBuilder(item as TwoListFilterData, (leftIndex: number, rightData: FilterItemData) => {
               this.popStatus[index] = false
-              this.updateTabTitle(index, rightData.title)
+              this.updateTabStatus(index, rightData.title)
               if (this.callback) {
                 this.callback(new CallBackData(index, leftIndex, rightData))
               }
@@ -77,19 +78,37 @@ export struct FilterBar {
     .width('100%')
   }
 
-  updateTabTitle(tabIndex: number, value: string) {
+  updateTabStatus(tabIndex: number, value: string) {
     if (value == '不限') {
+      this.tabTitleColor[tabIndex] = $r('app.color.fb_normal_color')
       this.tabTitleList[tabIndex] = this.filterDataList[tabIndex].tabTitle
     } else {
+      this.tabTitleColor[tabIndex] = $r('app.color.fb_primary_color')
       this.tabTitleList[tabIndex] = value
     }
   }
 
   @Builder
   singlePopupBuilder(filterData: SingleFilterData, cb?: (item: FilterItemData, index: number) => void) {
+    SingleListView({ filterData: filterData, callback: cb })
+  }
+
+  @Builder
+  twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: FilterItemData) => void) {
+    TwoListView({ filterData: filterData, callback: cb })
+  }
+}
+
+@Component
+struct SingleListView {
+  @Prop filterData: SingleFilterData
+  callback?: (item: FilterItemData, index: number) => void
+  @State currentIndex: number = 0
+
+  build() {
     Column() {
       List({ space: 5 }) {
-        ForEach(filterData.popupData, (item: FilterItemData, index: number) => {
+        ForEach(this.filterData.popupData, (item: FilterItemData, index: number) => {
           ListItem() {
             Column() {
               Text(`${item.title}`)
@@ -97,10 +116,11 @@ export struct FilterBar {
                 .width('100%')
                 .height('40vp')
                 .fontSize('16fp')
-                .fontColor('#333333')
+                .fontColor(this.currentIndex == index ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
                 .onClick(() => {
-                  if (cb) {
-                    cb(item, index)
+                  this.currentIndex = index
+                  if (this.callback) {
+                    this.callback(item, index)
                   }
                 })
               Divider()
@@ -113,17 +133,15 @@ export struct FilterBar {
     .backgroundColor(Color.White)
     .width('100%')
   }
-
-  @Builder
-  twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: FilterItemData) => void) {
-    TwoListView({ filterData: filterData, callback: cb })
-  }
 }
 
 @Component
 struct TwoListView {
   @Prop filterData: TwoListFilterData
   @State leftIndex: number = -1
+  //用于区分rightCurrentIndex属于哪个leftIndex
+  private rightCurrentLeftIndex: number = 0
+  @State rightCurrentIndex: number = 0
   callback?: (leftIndex: number, rightData: FilterItemData) => void
 
   aboutToAppear(): void {
@@ -144,7 +162,7 @@ struct TwoListView {
                 .width('100%')
                 .height('40vp')
                 .fontSize('16fp')
-                .fontColor(this.leftIndex == index ? '#ff8700' : '#333333')
+                .fontColor(this.leftIndex == index ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
                 .onClick(() => {
                   this.leftIndex = index
                 })
@@ -155,9 +173,9 @@ struct TwoListView {
       }.layoutWeight(1)
 
       //右List
-      if (this.leftIndex != -1) {
+      if (this.leftIndex >= 0 && this.leftIndex < this.filterData.popupData.length) {
         List() {
-          ForEach(this.filterData.popupData[this.leftIndex].items, (item: FilterItemData) => {
+          ForEach(this.filterData.popupData[this.leftIndex].items, (item: FilterItemData, index: number) => {
             ListItem() {
               Column() {
                 Text(`${item.title}`)
@@ -165,8 +183,11 @@ struct TwoListView {
                   .width('100%')
                   .height('40vp')
                   .fontSize('16fp')
-                  .fontColor('#333333')
+                  .fontColor((this.rightCurrentIndex == index && this.rightCurrentLeftIndex == this.leftIndex) ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
                   .onClick(() => {
+                    // 更新ui
+                    this.rightCurrentLeftIndex = this.leftIndex
+                    this.rightCurrentIndex = index
                     if (this.callback) {
                       this.callback(this.leftIndex, item)
                     }
@@ -188,9 +209,8 @@ struct TwoListView {
 @Component
 export struct TabItem {
   @Prop pop: boolean
+  @Prop color: Resource
   tabClick: () => void = () => {
-  }
-  touchCallback: () => void = () => {
   }
   @Prop title: string
 
@@ -198,7 +218,7 @@ export struct TabItem {
     Row() {
       Text(this.title)
         .fontSize('18vp')
-        .fontColor(this.pop ? '#ff8700' : '#333333')
+        .fontColor(this.pop ? $r('app.color.fb_primary_color') : this.color)
       if (this.pop) {
         Text('👆🏻')
       } else {
@@ -207,11 +227,6 @@ export struct TabItem {
     }
     .width('100%')
     .height('40vp')
-    .onTouch((event: TouchEvent) => {
-      if (event.type == TouchType.Down) {
-        this.touchCallback()
-      }
-    })
     .onClick(this.tabClick)
     .justifyContent(FlexAlign.Center)
   }

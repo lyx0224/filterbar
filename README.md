@@ -1,4 +1,4 @@
-# FilterBar
+**# FilterBar
 
 ## 简介
 
@@ -126,4 +126,4 @@ DevEco Studio 4.1 Canary2, SDK: API10 , Emulator
 
 ## 遗留问题
 
-1、Popup的x轴偏移量需要计算，tab数量可能会影响计算，后续统一公式计算。
+1、Popup的x轴偏移量需要计算，tab数量可能会影响计算，后续统一公式计算。**

@@ -1,0 +1,12 @@
+{
+  "color": [
+    {
+      "name": "fb_primary_color",
+      "value": "#ff8700"
+    },
+    {
+      "name": "fb_normal_color",
+      "value": "#333333"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import {
   SingleFilterData,
   TwoListFilterData,
   TwoListLeftData
-} from './src/main/ets/components/model/model'
+} from './src/main/ets/components/model'
 
 export { FilterBar, TabItem, } from './src/main/ets/components/FilterBar'
 

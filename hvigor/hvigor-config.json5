@@ -1,3 +1,4 @@
+// 请替换成自己的hvigor依赖
 {
   "hvigorVersion": "file:../dependencies/hvigor-3.0.9-s.tgz",
   "dependencies": {

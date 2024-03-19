@@ -15,24 +15,12 @@
 ## 使用说明
 
 ```typescript
-import ArrayList from '@ohos.util.ArrayList'
-import promptAction from '@ohos.promptAction'
-import {
-  SingleFilterData,
-  TwoListFilterData,
-  TwoListLeftData,
-  FilterBar,
-  AbsFilterData,
-  FilterItemData
-} from '@liyixin/filterbar'
-
 @Entry
 @Component
 struct Index {
   private dataList: ArrayList<AbsFilterData> = new ArrayList()
 
   aboutToAppear(): void {
-
     ///宝山
     let tabList1: FilterItemData[] = []
     tabList1[0] = new FilterItemData('不限')
@@ -50,13 +38,14 @@ struct Index {
     tabList4[4] = new FilterItemData('人民广场')
     tabList4[5] = new FilterItemData('世博滨江')
     tabList4[6] = new FilterItemData('新天地')
+
     ///双列
     let twoListItemDataList: TwoListLeftData[] = []
     twoListItemDataList[1] = new TwoListLeftData('黄浦区', tabList4)
     twoListItemDataList[0] = new TwoListLeftData('宝山区', tabList1)
     this.dataList.add(new TwoListFilterData('区域', twoListItemDataList))
 
-
+    //单列表
     let tabList2: FilterItemData[] = []
     tabList2[0] = new FilterItemData('不限')
     tabList2[1] = new FilterItemData('200万以下')
@@ -64,9 +53,9 @@ struct Index {
     tabList2[3] = new FilterItemData('250-300万')
     tabList2[4] = new FilterItemData('300-400万')
     tabList2[5] = new FilterItemData('400-500万')
-    this.dataList.add(new SingleFilterData('价格', tabList2))
+    this.dataList.add(new SingleFilterData('价格', false, tabList2))
 
-
+    //网格
     let tabList3: FilterItemData[] = []
     tabList3[0] = new FilterItemData('不限')
     tabList3[1] = new FilterItemData('1室')
@@ -74,14 +63,13 @@ struct Index {
     tabList3[3] = new FilterItemData('3室')
     tabList3[4] = new FilterItemData('4室')
     tabList3[5] = new FilterItemData('5+室')
-    this.dataList.add(new SingleFilterData('房型', tabList3))
-
+    this.dataList.add(new SingleFilterData('房型', true, tabList3))
+    //单列表
     let tabList5: FilterItemData[] = []
     tabList5[0] = new FilterItemData('不限')
     tabList5[1] = new FilterItemData('智能排序')
     tabList5[2] = new FilterItemData('最新挂牌')
-    this.dataList.add(new SingleFilterData('房源库', tabList5))
-
+    this.dataList.add(new SingleFilterData('房源库', false, tabList5))
   }
 
 build() {

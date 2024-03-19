@@ -5,8 +5,8 @@ import {
   SingleFilterData,
   TwoListFilterData,
   FilterItemData,
-  TwoListLeftData
-} from './model/model';
+  TwoListLeftData,
+} from './model';
 
 @Component
 export struct FilterBar {
@@ -56,13 +56,7 @@ export struct FilterBar {
             },
             builder:
             item instanceof SingleFilterData ?
-            this.singlePopupBuilder(item as SingleFilterData, (itemData: FilterItemData, itemIndex: number) => {
-              this.popStatus[index] = false
-              this.updateTabStatus(index, itemData.title)
-              if (this.callback) {
-                this.callback(new CallBackData(index, -1, itemData))
-              }
-            }) :
+            this.singlePopupBuilder(item.isGrid, index, item as SingleFilterData) :
             this.twoListPopupWindowBuilder(item as TwoListFilterData, (leftIndex: number, rightData: FilterItemData) => {
               this.popStatus[index] = false
               this.updateTabStatus(index, rightData.title)
@@ -89,13 +83,35 @@ export struct FilterBar {
   }
 
   @Builder
-  singlePopupBuilder(filterData: SingleFilterData, cb?: (item: FilterItemData, index: number) => void) {
-    SingleListView({ filterData: filterData, callback: cb })
+  singlePopupBuilder(isGrid: boolean, tabIndex: number, filterData: SingleFilterData) {
+    if (isGrid) {
+      GridView({ filterData: filterData, callback: (itemData: FilterItemData, itemIndex: number) => {
+        this.popStatus[tabIndex] = false
+        this.updateTabStatus(tabIndex, itemData.title)
+        if (this.callback) {
+          this.callback(new CallBackData(tabIndex, -1, itemData))
+        }
+      } })
+    } else {
+      SingleListView({ filterData: filterData, callback: (itemData: FilterItemData, itemIndex: number) => {
+        this.popStatus[tabIndex] = false
+        this.updateTabStatus(tabIndex, itemData.title)
+        if (this.callback) {
+          this.callback(new CallBackData(tabIndex, -1, itemData))
+        }
+      } })
+    }
+
   }
 
   @Builder
   twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: FilterItemData) => void) {
     TwoListView({ filterData: filterData, callback: cb })
+  }
+
+  @Builder
+  gridPopupBuilder(filterData: SingleFilterData) {
+    GridView({ filterData: filterData })
   }
 }
 
@@ -207,6 +223,52 @@ struct TwoListView {
 }
 
 @Component
+struct GridView {
+  @Prop filterData: SingleFilterData
+  callback?: (item: FilterItemData, index: number) => void
+  @State currentIndex: number = 0
+
+  build() {
+    Column() {
+      Grid() {
+        ForEach(this.filterData.popupData, (item: FilterItemData, index: number) => {
+          GridItem() {
+            Text(`${item.title}`)
+              .textAlign(TextAlign.Center)
+              .fontSize('16fp')
+              .border({
+                radius: '4vp',
+                color: this.currentIndex == index ? $r('app.color.fb_grid_select_border_color') : $r('app.color.fb_grid_border_color'),
+                width: 0.5
+              })
+              .backgroundColor(this.currentIndex == index ? $r('app.color.fb_grid_bg_color') : Color.White)
+              .fontColor(this.currentIndex == index ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
+              .height('40vp')
+              .width('100%')
+          }.onClick(() => {
+            this.currentIndex = index
+            if (this.callback) {
+              this.callback(item, index)
+            }
+          })
+        })
+      }
+      .columnsTemplate('1fr 1fr 1fr')
+      .rowsGap('16vp')
+      .columnsGap('16vp')
+      .margin({ left: '16vp', right: '16vp', top: '16vp', bottom: '16vp' })
+      .layoutDirection(GridDirection.Row)
+    }
+    .width('100%')
+    .backgroundColor(Color.White)
+    .constraintSize({
+      minHeight: '20%',
+      maxHeight: '20%'//grid会撑满maxHeight，先限定死高度
+    })
+  }
+}
+
+@Component
 export struct TabItem {
   @Prop pop: boolean
   @Prop color: Resource
@@ -219,10 +281,11 @@ export struct TabItem {
       Text(this.title)
         .fontSize('18vp')
         .fontColor(this.pop ? $r('app.color.fb_primary_color') : this.color)
+      Blank().width('4vp')
       if (this.pop) {
-        Text('👆🏻')
+        Image($r('app.media.comm_page_icon_jt_s')).size({ width: '12vp', height: '7vp' })
       } else {
-        Text('👇🏻')
+        Image($r('app.media.comm_page_icon_jt_x')).size({ width: '12vp', height: '7vp' })
       }
     }
     .width('100%')
@@ -231,7 +294,6 @@ export struct TabItem {
     .justifyContent(FlexAlign.Center)
   }
 }
-
 
 function getScreenWidth(): number {
   try {

@@ -38,7 +38,7 @@ export struct FilterBar {
             color: this.tabTitleColor[index],
             tabClick: () => {
               this._offset[index] = {
-                x: (1.5 - index) * this.itemTabWidth,
+                x: ((this.filterDataList.length / 2) - 0.5 - index) * this.itemTabWidth,
                 y: 0
               }
               this.popStatus[index] = !this.popStatus[index]

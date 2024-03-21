@@ -61,7 +61,7 @@ export struct FilterBar {
               this.popStatus[index] = false
               this.updateTabStatus(index, rightData.title)
               if (this.callback) {
-                this.callback(new CallBackData(index, leftIndex, rightData))
+                this.callback(new CallBackData(index, [rightData]))
               }
             })
           })
@@ -85,11 +85,15 @@ export struct FilterBar {
   @Builder
   singlePopupBuilder(isGrid: boolean, tabIndex: number, filterData: SingleFilterData) {
     if (isGrid) {
-      GridView({ filterData: filterData, callback: (itemData: FilterItemData, itemIndex: number) => {
+      GridView({ filterData: filterData, callback: (itemDataList: FilterItemData[]) => {
         this.popStatus[tabIndex] = false
-        this.updateTabStatus(tabIndex, itemData.title)
+        if (itemDataList.length == 1) {
+          this.updateTabStatus(tabIndex, itemDataList[0].title)
+        } else {
+          this.updateTabStatus(tabIndex, '多选')
+        }
         if (this.callback) {
-          this.callback(new CallBackData(tabIndex, -1, itemData))
+          this.callback(new CallBackData(tabIndex, itemDataList))
         }
       } })
     } else {
@@ -97,7 +101,7 @@ export struct FilterBar {
         this.popStatus[tabIndex] = false
         this.updateTabStatus(tabIndex, itemData.title)
         if (this.callback) {
-          this.callback(new CallBackData(tabIndex, -1, itemData))
+          this.callback(new CallBackData(tabIndex, [itemData]))
         }
       } })
     }
@@ -107,11 +111,6 @@ export struct FilterBar {
   @Builder
   twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: FilterItemData) => void) {
     TwoListView({ filterData: filterData, callback: cb })
-  }
-
-  @Builder
-  gridPopupBuilder(filterData: SingleFilterData) {
-    GridView({ filterData: filterData })
   }
 }
 
@@ -225,11 +224,16 @@ struct TwoListView {
 @Component
 struct GridView {
   @Prop filterData: SingleFilterData
-  callback?: (item: FilterItemData, index: number) => void
-  @State currentIndex: number = 0
+  callback?: (itemList: FilterItemData[]) => void
+  @State currentIndexList: Array<number> = []
+
+  contain(src: number): boolean {
+    return this.currentIndexList.indexOf(src) >= 0
+  }
 
   build() {
     Column() {
+      // 网格
       Grid() {
         ForEach(this.filterData.popupData, (item: FilterItemData, index: number) => {
           GridItem() {
@@ -238,17 +242,29 @@ struct GridView {
               .fontSize('16fp')
               .border({
                 radius: '4vp',
-                color: this.currentIndex == index ? $r('app.color.fb_grid_select_border_color') : $r('app.color.fb_grid_border_color'),
+                color: this.contain(index) ? $r('app.color.fb_grid_select_border_color') : $r('app.color.fb_grid_border_color'),
                 width: 0.5
               })
-              .backgroundColor(this.currentIndex == index ? $r('app.color.fb_grid_bg_color') : Color.White)
-              .fontColor(this.currentIndex == index ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
+              .backgroundColor(this.contain(index) ? $r('app.color.fb_grid_bg_color') : Color.White)
+              .fontColor(this.contain(index) ? $r('app.color.fb_primary_color') : $r('app.color.fb_normal_color'))
               .height('40vp')
               .width('100%')
           }.onClick(() => {
-            this.currentIndex = index
-            if (this.callback) {
-              this.callback(item, index)
+            //单选
+            if (this.filterData.isSingleChoice) {
+              this.currentIndexList = []
+              this.currentIndexList.push(index)
+              if (this.callback) {
+                this.callback([item])
+              }
+            } else {
+              //多选
+              let p = this.currentIndexList.indexOf(index)
+              if (p == -1) {
+                this.currentIndexList.push(index)
+              } else {
+                this.currentIndexList.splice(p, 1)
+              }
             }
           })
         })
@@ -258,14 +274,57 @@ struct GridView {
       .columnsGap('16vp')
       .margin({ left: '16vp', right: '16vp', top: '16vp', bottom: '16vp' })
       .layoutDirection(GridDirection.Row)
+      .constraintSize({
+        minHeight: '20%',
+        maxHeight: '20%'//grid会撑满maxHeight，先限定死高度
+      })
+
+      //底部按钮
+      if (!this.filterData.isSingleChoice) {
+        Row() {
+          Button('重置')
+            .secondBtn()
+            .onClick(() => {
+              this.currentIndexList = []
+            })
+          Blank().layoutWeight(1)
+          Button('确认').primaryBtn().onClick(() => {
+            let newList = this.filterData.popupData.filter((_, index, __) => {
+              return this.contain(index)
+            })
+            if (this.callback) {
+              this.callback(newList)
+            }
+          })
+        }
+        .margin('16vp')
+      }
     }
     .width('100%')
     .backgroundColor(Color.White)
-    .constraintSize({
-      minHeight: '20%',
-      maxHeight: '20%'//grid会撑满maxHeight，先限定死高度
-    })
   }
+}
+
+@Extend(Button)
+function primaryBtn() {
+  .border({
+    radius: 2,
+  })
+  .fontSize('16fp')
+  .fontColor(Color.White)
+  .backgroundColor($r('app.color.fb_primary_color'))
+}
+
+@Extend(Button)
+function secondBtn() {
+  .border({
+    radius: 2,
+    width: 0.5,
+    color: $r('app.color.fb_grid_select_border_color')
+  })
+  .fontSize('16fp')
+  .fontColor($r('app.color.fb_primary_color'))
+  .backgroundColor(Color.White)
 }
 
 @Component

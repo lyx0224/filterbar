@@ -1,12 +1,10 @@
 class CallBackData {
   tabIndex: number
-  leftIndex?: number //双列有效
-  itemData: FilterItemData
+  itemDataList: FilterItemData[]
 
-  constructor(tabIndex: number, leftIndex: number, itemData: FilterItemData) {
+  constructor(tabIndex: number, itemDataList: FilterItemData[]) {
     this.tabIndex = tabIndex
-    this.leftIndex = leftIndex
-    this.itemData = itemData
+    this.itemDataList = itemDataList
   }
 }
 
@@ -32,9 +30,16 @@ abstract class AbsFilterData {
 class SingleFilterData extends AbsFilterData {
   popupData: FilterItemData[]
   isGrid: boolean
-  constructor(tabTitle: string, isGrid: boolean, popupData: FilterItemData[]) {
+  isSingleChoice: boolean
+
+  constructor(tabTitle: string, isGrid: boolean, isSingleChoice: boolean, popupData: FilterItemData[]) {
     super(tabTitle)
     this.isGrid = isGrid
+    if (isGrid) {
+      this.isSingleChoice = isSingleChoice
+    } else {
+      this.isSingleChoice = true
+    }
     this.popupData = popupData
   }
 }

@@ -3,6 +3,13 @@
 ## 简介
 
 > FilterBar是一款OpenHarmony环境下可用的筛选组件，使用频次很高。
+> 支持单列、双列、单选、双选，使用者可根据自己需求配置。
+
+## 截图
+
+| 网格多选                               | 网格单选                              | 列表                            | 双列表                            |
+|------------------------------------|-----------------------------------|-------------------------------|--------------------------------|
+| ![多选](screenshots/grid_single.png) | ![多选](screenshots/grid_multi.png) | ![多选](screenshots/single.png) | ![多选](screenshots/twolist.png) |
 
 ## 效果展示
 
@@ -12,9 +19,49 @@
 
 > ohpm install filterbar
 
+## 版本和设备
+
+| /             | 版本             |
+|---------------|----------------|
+| DevEco Studio | 4.1 Canary2    |
+| SDK           | **10**             |
+| 设备            | Emulator(Next) |
+
+## 属性说明
+
+### filterbar
+
+| 属性                  | 类型                     | 含义     | 必传  | 备注    |
+|---------------------|------------------------|--------|-----|-------|
+| []() filterDataList | 数组                     | 筛选项数据源 | Y   |       |
+| callback            | (CallBackData) => void | 回调函数   | Y   | 回调给下游 |
+
+## 配置说明
+
+**SingleFilterData**
+
+| 属性             | 类型      | 含义      | 必传  | 备注            |
+|----------------|---------|---------|-----|---------------|
+| []() isGrid    | boolean | 是否是网格布局 | Y   |               |
+| isSingleChoice | boolean | 单选or多选  | Y   | 注意：多选仅对网格布局有效 |
+
+**TwoListFilterData**
+> _暂无配置信息_
+
 ## 使用说明
 
 ```typescript
+import ArrayList from '@ohos.util.ArrayList'
+import promptAction from '@ohos.promptAction'
+import {
+  SingleFilterData,
+  TwoListFilterData,
+  TwoListLeftData,
+  FilterBar,
+  AbsFilterData,
+  FilterItemData,
+} from '@liyixin/filterbar'
+
 @Entry
 @Component
 struct Index {
@@ -53,56 +100,40 @@ struct Index {
     tabList2[3] = new FilterItemData('250-300万')
     tabList2[4] = new FilterItemData('300-400万')
     tabList2[5] = new FilterItemData('400-500万')
-    this.dataList.add(new SingleFilterData('价格', false, tabList2))
+    this.dataList.add(new SingleFilterData('价格', false, true, tabList2))
 
     //网格
     let tabList3: FilterItemData[] = []
-    tabList3[0] = new FilterItemData('不限')
-    tabList3[1] = new FilterItemData('1室')
-    tabList3[2] = new FilterItemData('2室')
-    tabList3[3] = new FilterItemData('3室')
-    tabList3[4] = new FilterItemData('4室')
-    tabList3[5] = new FilterItemData('5+室')
-    this.dataList.add(new SingleFilterData('房型', true, tabList3))
+    tabList3[0] = new FilterItemData('1室')
+    tabList3[1] = new FilterItemData('2室')
+    tabList3[2] = new FilterItemData('3室')
+    tabList3[3] = new FilterItemData('4室')
+    tabList3[4] = new FilterItemData('5+室')
+    this.dataList.add(new SingleFilterData('房型', true, false, tabList3))
     //单列表
     let tabList5: FilterItemData[] = []
     tabList5[0] = new FilterItemData('不限')
     tabList5[1] = new FilterItemData('智能排序')
     tabList5[2] = new FilterItemData('最新挂牌')
-    this.dataList.add(new SingleFilterData('房源库', false, tabList5))
+    this.dataList.add(new SingleFilterData('房源库', true, true, tabList5))
   }
 
-build() {
+  build() {
     Column() {
       FilterBar({
         filterDataList: this.dataList.convertToArray(),
         callback: (data) => {
           promptAction.showToast({
-            message: `tabIndex:${data.tabIndex}, leftIndex: ${data.leftIndex}, value: ${data.itemData.title}`
+            message: `tabIndex:${data.tabIndex}, value: ${data.itemDataList.map((v) => v.title).join(',')}`
           })
         }
       }).margin({ left: 0, right: 0, top: 20 })
     }
-.height('100%')
-  .width('100%')
-}
+    .height('100%')
+    .width('100%')
+  }
 }
 ```
-
-## 属性说明
-
-### filterbar
-
-| 属性             | 类型         | 含义     | 必传  | 备注    |
-|----------------|------------|--------|-----|-------|
-|[]() filterDataList | 数组         | 筛选项数据源 | Y   |       |
-| callback       | (CallBackData) => void | 回调函数   | Y   | 回调给下游 |
-
-## 测试
-
-在下述版本验证通过：
-
-DevEco Studio 4.1 Canary2, SDK: API10 , Emulator
 
 ## 贡献代码
 
@@ -114,4 +145,4 @@ DevEco Studio 4.1 Canary2, SDK: API10 , Emulator
 
 ## 遗留问题
 
-1、Popup的x轴偏移量需要计算，tab数量可能会影响计算，后续统一公式计算。
+暂无

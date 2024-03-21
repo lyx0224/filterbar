@@ -1,7 +1,7 @@
 {
   "name": "filterbar",
-  "version": "1.0.3",
-  "description": "FilterBar是一款OpenHarmony环境下可用的筛选组件，使用频次很高。",
+  "version": "1.0.4",
+  "description": "FilterBar是一款OpenHarmony环境下可用的筛选组件，使用频次很高。支持单列、双列、单选、双选，使用者可根据自己需求配置",
   "main": "Index.ets",
   "author": "liyixin",
   "keywords": [

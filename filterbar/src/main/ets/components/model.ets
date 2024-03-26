@@ -1,20 +1,28 @@
 class CallBackData {
   tabIndex: number
-  itemDataList: FilterItemData[]
+  itemDataList: IFilterItemData[]
 
-  constructor(tabIndex: number, itemDataList: FilterItemData[]) {
+  constructor(tabIndex: number, itemDataList: IFilterItemData[]) {
     this.tabIndex = tabIndex
     this.itemDataList = itemDataList
   }
 }
 
-class FilterItemData {
+interface IFilterItemData {
+  getShownTitle(): string
+}
+
+class FilterItemData implements IFilterItemData {
   // checked: boolean
-  title: string
+  private title: string
 
   constructor(title: string) {
     this.title = title
     // this.checked = false
+  }
+
+  getShownTitle(): string {
+    return this.title
   }
 }
 
@@ -28,11 +36,11 @@ abstract class AbsFilterData {
 
 ///单列数据源
 class SingleFilterData extends AbsFilterData {
-  popupData: FilterItemData[]
+  popupData: IFilterItemData[]
   isGrid: boolean
   isSingleChoice: boolean
 
-  constructor(tabTitle: string, isGrid: boolean, isSingleChoice: boolean, popupData: FilterItemData[]) {
+  constructor(tabTitle: string, isGrid: boolean, isSingleChoice: boolean, popupData: IFilterItemData[]) {
     super(tabTitle)
     this.isGrid = isGrid
     if (isGrid) {
@@ -46,7 +54,7 @@ class SingleFilterData extends AbsFilterData {
 
 class TwoListLeftData {
   leftTitle: string
-  items: FilterItemData[]
+  items: IFilterItemData[]
 
   constructor(leftTitle: string, items: FilterItemData[]) {
     this.leftTitle = leftTitle
@@ -64,4 +72,10 @@ class TwoListFilterData extends AbsFilterData {
   }
 }
 
-export { SingleFilterData, TwoListFilterData, AbsFilterData, FilterItemData, TwoListLeftData, CallBackData }
+export { SingleFilterData,
+  TwoListFilterData,
+  AbsFilterData,
+  FilterItemData,
+  TwoListLeftData,
+  CallBackData,
+  IFilterItemData }

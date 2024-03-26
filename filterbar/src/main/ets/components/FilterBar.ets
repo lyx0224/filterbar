@@ -4,8 +4,8 @@ import {
   AbsFilterData,
   SingleFilterData,
   TwoListFilterData,
-  FilterItemData,
   TwoListLeftData,
+  IFilterItemData,
 } from './model';
 
 @Component
@@ -57,9 +57,9 @@ export struct FilterBar {
             builder:
             item instanceof SingleFilterData ?
             this.singlePopupBuilder(item.isGrid, index, item as SingleFilterData) :
-            this.twoListPopupWindowBuilder(item as TwoListFilterData, (leftIndex: number, rightData: FilterItemData) => {
+            this.twoListPopupWindowBuilder(item as TwoListFilterData, (leftIndex: number, rightData: IFilterItemData) => {
               this.popStatus[index] = false
-              this.updateTabStatus(index, rightData.title)
+              this.updateTabStatus(index, rightData.getShownTitle())
               if (this.callback) {
                 this.callback(new CallBackData(index, [rightData]))
               }
@@ -85,10 +85,10 @@ export struct FilterBar {
   @Builder
   singlePopupBuilder(isGrid: boolean, tabIndex: number, filterData: SingleFilterData) {
     if (isGrid) {
-      GridView({ filterData: filterData, callback: (itemDataList: FilterItemData[]) => {
+      GridView({ filterData: filterData, callback: (itemDataList: IFilterItemData[]) => {
         this.popStatus[tabIndex] = false
         if (itemDataList.length == 1) {
-          this.updateTabStatus(tabIndex, itemDataList[0].title)
+          this.updateTabStatus(tabIndex, itemDataList[0].getShownTitle())
         } else {
           this.updateTabStatus(tabIndex, '多选')
         }
@@ -97,9 +97,9 @@ export struct FilterBar {
         }
       } })
     } else {
-      SingleListView({ filterData: filterData, callback: (itemData: FilterItemData, itemIndex: number) => {
+      SingleListView({ filterData: filterData, callback: (itemData: IFilterItemData, itemIndex: number) => {
         this.popStatus[tabIndex] = false
-        this.updateTabStatus(tabIndex, itemData.title)
+        this.updateTabStatus(tabIndex, itemData.getShownTitle())
         if (this.callback) {
           this.callback(new CallBackData(tabIndex, [itemData]))
         }
@@ -109,7 +109,7 @@ export struct FilterBar {
   }
 
   @Builder
-  twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: FilterItemData) => void) {
+  twoListPopupWindowBuilder(filterData: TwoListFilterData, cb: (leftIndex: number, rightData: IFilterItemData) => void) {
     TwoListView({ filterData: filterData, callback: cb })
   }
 }
@@ -117,16 +117,16 @@ export struct FilterBar {
 @Component
 struct SingleListView {
   @Prop filterData: SingleFilterData
-  callback?: (item: FilterItemData, index: number) => void
+  callback?: (item: IFilterItemData, index: number) => void
   @State currentIndex: number = 0
 
   build() {
     Column() {
       List({ space: 5 }) {
-        ForEach(this.filterData.popupData, (item: FilterItemData, index: number) => {
+        ForEach(this.filterData.popupData, (item: IFilterItemData, index: number) => {
           ListItem() {
             Column() {
-              Text(`${item.title}`)
+              Text(`${item.getShownTitle()}`)
                 .textAlign(TextAlign.Center)
                 .width('100%')
                 .height('40vp')
@@ -157,7 +157,7 @@ struct TwoListView {
   //用于区分rightCurrentIndex属于哪个leftIndex
   private rightCurrentLeftIndex: number = 0
   @State rightCurrentIndex: number = 0
-  callback?: (leftIndex: number, rightData: FilterItemData) => void
+  callback?: (leftIndex: number, rightData: IFilterItemData) => void
 
   aboutToAppear(): void {
     if (this.filterData.popupData.length > 0) {
@@ -190,10 +190,10 @@ struct TwoListView {
       //右List
       if (this.leftIndex >= 0 && this.leftIndex < this.filterData.popupData.length) {
         List() {
-          ForEach(this.filterData.popupData[this.leftIndex].items, (item: FilterItemData, index: number) => {
+          ForEach(this.filterData.popupData[this.leftIndex].items, (item: IFilterItemData, index: number) => {
             ListItem() {
               Column() {
-                Text(`${item.title}`)
+                Text(`${item.getShownTitle()}`)
                   .textAlign(TextAlign.Center)
                   .width('100%')
                   .height('40vp')
@@ -224,7 +224,7 @@ struct TwoListView {
 @Component
 struct GridView {
   @Prop filterData: SingleFilterData
-  callback?: (itemList: FilterItemData[]) => void
+  callback?: (itemList: IFilterItemData[]) => void
   @State currentIndexList: Array<number> = []
 
   contain(src: number): boolean {
@@ -235,9 +235,9 @@ struct GridView {
     Column() {
       // 网格
       Grid() {
-        ForEach(this.filterData.popupData, (item: FilterItemData, index: number) => {
+        ForEach(this.filterData.popupData, (item: IFilterItemData, index: number) => {
           GridItem() {
-            Text(`${item.title}`)
+            Text(`${item.getShownTitle()}`)
               .textAlign(TextAlign.Center)
               .fontSize('16fp')
               .border({

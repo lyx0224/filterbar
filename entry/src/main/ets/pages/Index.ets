@@ -7,6 +7,7 @@ import {
   FilterBar,
   AbsFilterData,
   FilterItemData,
+  IFilterItemData
 } from '@liyixin/filterbar'
 
 @Entry
@@ -57,11 +58,11 @@ struct Index {
     tabList3[3] = new FilterItemData('4室')
     tabList3[4] = new FilterItemData('5+室')
     this.dataList.add(new SingleFilterData('房型', true, false, tabList3))
-    //单列表
-    let tabList5: FilterItemData[] = []
-    tabList5[0] = new FilterItemData('不限')
-    tabList5[1] = new FilterItemData('智能排序')
-    tabList5[2] = new FilterItemData('最新挂牌')
+    //单列表（自定义数据源，可以附带其他数据，比如id等）
+    let tabList5: IFilterItemData[] = []
+    tabList5[0] = new CustomFilterItemData('不限')
+    tabList5[1] = new CustomFilterItemData('智能排序', 'znpx')
+    tabList5[2] = new CustomFilterItemData('最新挂牌', 'cxgp')
     this.dataList.add(new SingleFilterData('房源库', true, true, tabList5))
   }
 
@@ -71,12 +72,30 @@ struct Index {
         filterDataList: this.dataList.convertToArray(),
         callback: (data) => {
           promptAction.showToast({
-            message: `tabIndex:${data.tabIndex}, value: ${data.itemDataList.map((v) => v.title).join(',')}`
+            message: `tabIndex:${data.tabIndex}, value: ${data.itemDataList.map((v) => v.getShownTitle()).join(',')}`
           })
         }
       }).margin({ left: 0, right: 0, top: 20 })
     }
     .height('100%')
     .width('100%')
+  }
+}
+
+class CustomFilterItemData implements IFilterItemData {
+  private title: string
+  private id?: string | undefined
+
+  constructor(title: string, id?: string) {
+    this.title = title
+    this.id = id
+  }
+
+  getId(): string | undefined {
+    return this.id
+  }
+
+  getShownTitle(): string {
+    return this.title
   }
 }

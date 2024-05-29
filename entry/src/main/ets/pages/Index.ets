@@ -63,7 +63,7 @@ struct Index {
     tabList5[0] = new CustomFilterItemData('不限')
     tabList5[1] = new CustomFilterItemData('智能排序', 'znpx')
     tabList5[2] = new CustomFilterItemData('最新挂牌', 'cxgp')
-    this.dataList.add(new SingleFilterData('房源库', true, true, tabList5))
+    this.dataList.add(new SingleFilterData('房源库', false, true, tabList5))
   }
 
   build() {

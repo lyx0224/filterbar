@@ -46,6 +46,7 @@ export struct FilterBar {
           }
         ).layoutWeight(1)
           .bindPopup(this.popStatus[index], {
+            radius: 0,
             placement: Placement.Bottom,
             enableArrow: false,
             // offset: this._offset[index], API12无需设置offset

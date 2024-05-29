@@ -48,7 +48,7 @@ export struct FilterBar {
           .bindPopup(this.popStatus[index], {
             placement: Placement.Bottom,
             enableArrow: false,
-            offset: this._offset[index],
+            // offset: this._offset[index], API12无需设置offset
             onStateChange: (event) => {
               if (!event.isVisible) {
                 this.popStatus[index] = false
